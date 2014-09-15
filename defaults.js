@@ -1,5 +1,6 @@
 var defaults = {};
 
-defaults.test = "test";
+defaults.test = "hej";
+defaults.he = "lolol";
 
 module.exports = defaults;

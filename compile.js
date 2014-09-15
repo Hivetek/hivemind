@@ -1,6 +1,8 @@
 var path = require('path'),
     fs   = require('fs');
 
+var extend = require('util')._extend;
+
 /* // Command line input debugging
 process.argv.forEach(function (val, index, array) {
   console.log(index + ': ' + val);
@@ -16,13 +18,16 @@ var defaults = require(path.join(hivemindPath, defaultsFile));
 
 var configFile = "config.js";
 var config = {};
+var options = {};
 
 var projectFiles = fs.readdirSync(projectPath);
 
 if (projectFiles.indexOf(configFile) > -1) {
     var configPath = path.join(projectPath, configFile);
-    var config = require(configPath);
+    var options = require(configPath);
 }
+
+var config = extend(defaults, options);
 
 console.log(projectFiles);
 console.log(config);
