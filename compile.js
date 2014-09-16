@@ -11,7 +11,17 @@ console.log(process.cwd());
 */
 
 var hivemindPath = path.dirname(process.argv[1]);
-var projectPath = path.join(process.cwd(), process.argv[2]);
+var hivemindDir = path.basename(hivemindPath);
+var ignoreHivemindDir = false;
+
+var inputPath = process.argv[2];
+var projectPath;
+if (inputPath) {
+    projectPath = path.join(process.cwd(), inputPath);
+} else {
+    projectPath = process.cwd();
+    ignoreHivemindDir = true;
+}
 
 var defaultsFile = "defaults.js";
 var defaults = require(path.join(hivemindPath, defaultsFile));
@@ -21,6 +31,13 @@ var config = {};
 var options = {};
 
 var projectFiles = fs.readdirSync(projectPath);
+
+if (ignoreHivemindDir) {
+    var hivemindDirIndex = projectFiles.indexOf(hivemindDir);
+    if (hivemindDirIndex > -1) {
+        projectFiles.splice(hivemindDirIndex, 1);
+    }
+}
 
 if (projectFiles.indexOf(configFile) > -1) {
     var configPath = path.join(projectPath, configFile);
