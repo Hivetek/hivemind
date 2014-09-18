@@ -7,7 +7,7 @@ var extend = require('util')._extend;
  * Main compiler
  */
 var compiler = (function() {
-    var self = {};
+    var self = {}; // The interface to the outside
 
     /**
      * Vars
@@ -15,12 +15,15 @@ var compiler = (function() {
     var hivemindPath, hivemindDir, projectPath, projectFiles, 
         defaults, config, app;
 
-    self.init = function() {
-        hivemindPath = path.dirname(process.argv[1]);
+    /**
+     * Handle command line input and load config file
+     */
+    self.init = function(argv) {
+        hivemindPath = path.dirname(argv[1]);
         hivemindDir = path.basename(hivemindPath);
         var ignoreHivemindDir = false;
 
-        var inputPath = process.argv[2];
+        var inputPath = argv[2];
         if (inputPath) {
             projectPath = path.join(process.cwd(), inputPath);
         } else {
@@ -52,6 +55,9 @@ var compiler = (function() {
         config = extend(defaults, options);
     };
 
+    /**
+     * Generate code in segments stored in an object
+     */
     self.generateCode = function() {
         var source = {};
 
@@ -97,6 +103,9 @@ var compiler = (function() {
         return source;
     };
 
+    /**
+     * Build generated code segments to final source code
+     */
     self.buildSource = function(source) {
         var s = "";
         var keys = Object.keys(source);
@@ -106,15 +115,20 @@ var compiler = (function() {
         return s;
     };
 
-    self.writeOutput = function(source) {
-        // Write the final output file
-        fs.writeFile(path.join(projectPath, config.outputFile), source, 'utf-8');
+    /**
+     * Write the final output file
+     */
+    self.writeOutput = function(sourceString) {
+        fs.writeFile(path.join(projectPath, config.outputFile), sourceString, 'utf-8');
 
         console.log(config.outputFile + " written");
     };
 
+    /**
+     * Putting it all together
+     */
     self.run = function() {
-        self.init();
+        self.init(process.argv);
         var source = self.generateCode();
         var sourceString = self.buildSource(source);
         self.writeOutput(sourceString);
