@@ -12,7 +12,6 @@ var compiler = (function() {
     /**
      * Vars
      */
-    var source = {};
     var hivemindPath, hivemindDir, projectPath, projectFiles, 
         defaults, config, app;
 
@@ -53,17 +52,57 @@ var compiler = (function() {
         config = extend(defaults, options);
     };
 
-    self.generate = function() {
+    self.generateCode = function() {
+        var source = {};
+
         app = require(path.join(projectPath, config.mainFile));
 
         console.log(app);
 
         app.main();
+
+        var keyBinds = [];
+
+        function addKeyBind(key, fn, type) {
+            keyBinds.push({key: key, fn: fn, type: type});
+        }
+
+        function addVariables(str){
+
+        }
+
+        //Starting variables
+        source.startVars = "";
+        source.startVars += "var keys = []; var canvas, ctx, startTime, lastTime, currentTime, deltaTime, timeScale;";
+
+        //Keybinds
+        source.keyBinds = "window.addEventListener('keydown', function(event) { keys[event.keyCode] = true;";
+        for (var i = 0; i < keyBinds.length; i++) {
+            if (keyBinds[i].type === "keydown") {
+                source.keyBinds += "if (event.keyCode === " + keyBinds[i].key.charCodeAt(0) + ") {";
+                source.keyBinds += keyBinds[i].fn.toString() + "}";
+            }
+        }
+        source.keyBinds += "}, false);";
+
+        source.keyBinds = "window.addEventListener('keyup', function(event) { keys[event.keyCode] = false;";
+        for (var i = 0; i < keyBinds.length; i++) {
+            if (keyBinds[i].type === "up") {
+                source.keyBinds += "if (event.keyCode === " + keyBinds[i].key.charCodeAt(0) + ") {";
+                source.keyBinds += keyBinds[i].fn.toString() + "}";
+            }
+        }
+        source.keyBinds += "}, false);";
+
+        return source;
     };
 
-    self.buildSource = function() {
+    self.buildSource = function(source) {
         var s = "";
-
+        var keys = Object.keys(source);
+        keys.forEach(function(element) {
+            s += source[element];
+        });
         return s;
     };
 
@@ -76,8 +115,8 @@ var compiler = (function() {
 
     self.run = function() {
         self.init();
-        self.generate();
-        var sourceString = self.buildSource();
+        var source = self.generateCode();
+        var sourceString = self.buildSource(source);
         self.writeOutput(sourceString);
     };
 
