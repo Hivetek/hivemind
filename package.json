@@ -1,0 +1,11 @@
+{
+  "name": "hivemind-compiler",
+  "version": "0.0.1",
+  "description": "A Javascript to Javascript game and networking compiler.",
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
