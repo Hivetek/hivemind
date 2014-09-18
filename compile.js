@@ -2,6 +2,7 @@ var path = require('path'),
     fs   = require('fs');
 
 var extend = require('util')._extend;
+var templateEngine = require('./template');
 
 /**
  * Main compiler
@@ -12,8 +13,8 @@ var compiler = (function() {
     /**
      * Vars
      */
-    var hivemindPath, hivemindDir, projectPath, projectFiles, 
-        defaults, config, app;
+    var hivemindPath, hivemindDir, projectPath, projectFiles, templateDir,
+        template, defaults, config, app;
 
     /**
      * Handle command line input and load config file
@@ -52,6 +53,9 @@ var compiler = (function() {
             var options = require(configPath);
         }
 
+        templateDir = path.join(hivemindPath, "templates");
+        template = templateEngine(templateDir);
+
         config = extend(defaults, options);
     };
 
@@ -67,6 +71,8 @@ var compiler = (function() {
 
         app.main();
 
+        source.startVars = template("startvars.js", {}); 
+
         var keyBinds = [];
 
         function addKeyBind(key, fn, type) {
@@ -77,29 +83,24 @@ var compiler = (function() {
 
         }
 
-        //Starting variables
-        source.startVars = "";
-        source.startVars += "var keys = []; var canvas, ctx, startTime, lastTime, currentTime, deltaTime, timeScale;";
+        var keydown = "", keyup = "";
 
-        //Keybinds
-        source.keyBinds = "window.addEventListener('keydown', function(event) { keys[event.keyCode] = true;";
-        for (var i = 0; i < keyBinds.length; i++) {
-            if (keyBinds[i].type === "keydown") {
-                source.keyBinds += "if (event.keyCode === " + keyBinds[i].key.charCodeAt(0) + ") {";
-                source.keyBinds += keyBinds[i].fn.toString() + "}";
+        keyBinds.forEach(function(element) {
+            var str = "";
+                str += "if (event.keyCode === " + element.key.charCodeAt(0) + ") {";
+                str += element.fn.toString() + "}";
+            if (element.type === "keydown") {
+                keydown += str;
+            } else if (element.type === "keyup") {
+                keyup += str;
             }
-        }
-        source.keyBinds += "}, false);";
+        });
 
-        source.keyBinds = "window.addEventListener('keyup', function(event) { keys[event.keyCode] = false;";
-        for (var i = 0; i < keyBinds.length; i++) {
-            if (keyBinds[i].type === "up") {
-                source.keyBinds += "if (event.keyCode === " + keyBinds[i].key.charCodeAt(0) + ") {";
-                source.keyBinds += keyBinds[i].fn.toString() + "}";
-            }
-        }
-        source.keyBinds += "}, false);";
-
+        source.keyBinds = template("keybinds.js", {
+            keydown: keydown,
+            keyup:   keyup
+        });
+        
         return source;
     };
 
@@ -119,7 +120,12 @@ var compiler = (function() {
      * Write the final output file
      */
     self.writeOutput = function(sourceString) {
-        fs.writeFile(path.join(projectPath, config.outputFile), sourceString, 'utf-8');
+        var output = template("main.js", {
+            source: sourceString,
+            projectname: config.projectName
+        });
+
+        fs.writeFile(path.join(projectPath, config.outputFile), output, 'utf-8');
 
         console.log(config.outputFile + " written");
     };
