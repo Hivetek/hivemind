@@ -1,6 +1,6 @@
 var defaults = {};
 
-defaults.test = "hej";
-defaults.he = "lolol";
+defaults.mainFile = "main.js";
+defaults.outputFile = "game.js";
 
 module.exports = defaults;

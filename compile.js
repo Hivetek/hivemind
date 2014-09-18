@@ -50,3 +50,16 @@ console.log(projectFiles);
 console.log(config);
 
 // Load main
+
+var source = "";
+
+var app = require(path.join(projectPath, config.mainFile));
+
+console.log(app);
+
+app.main();
+
+// Write the final output file
+fs.writeFile(path.join(projectPath, config.outputFile), source, 'utf-8');
+
+console.log(config.outputFile + " written");
