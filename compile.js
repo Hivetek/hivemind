@@ -3,63 +3,85 @@ var path = require('path'),
 
 var extend = require('util')._extend;
 
-/* // Command line input debugging
-process.argv.forEach(function (val, index, array) {
-  console.log(index + ': ' + val);
-});
-console.log(process.cwd());
-*/
+/**
+ * Main compiler
+ */
+var compiler = (function() {
+    var self = {};
 
-var hivemindPath = path.dirname(process.argv[1]);
-var hivemindDir = path.basename(hivemindPath);
-var ignoreHivemindDir = false;
+    /**
+     * Vars
+     */
+    var source = {};
+    var hivemindPath, hivemindDir, projectPath, projectFiles, 
+        defaults, config, app;
 
-var inputPath = process.argv[2];
-var projectPath;
-if (inputPath) {
-    projectPath = path.join(process.cwd(), inputPath);
-} else {
-    projectPath = process.cwd();
-    ignoreHivemindDir = true;
-}
+    self.init = function() {
+        hivemindPath = path.dirname(process.argv[1]);
+        hivemindDir = path.basename(hivemindPath);
+        var ignoreHivemindDir = false;
 
-var defaultsFile = "defaults.js";
-var defaults = require(path.join(hivemindPath, defaultsFile));
+        var inputPath = process.argv[2];
+        if (inputPath) {
+            projectPath = path.join(process.cwd(), inputPath);
+        } else {
+            projectPath = process.cwd();
+            ignoreHivemindDir = true;
+        }
 
-var configFile = "config.js";
-var config = {};
-var options = {};
+        var defaultsFile = "defaults.js";
+        defaults = require(path.join(hivemindPath, defaultsFile));
 
-var projectFiles = fs.readdirSync(projectPath);
+        var configFile = "config.js";
+        config = {};
+        var options = {};
 
-if (ignoreHivemindDir) {
-    var hivemindDirIndex = projectFiles.indexOf(hivemindDir);
-    if (hivemindDirIndex > -1) {
-        projectFiles.splice(hivemindDirIndex, 1);
-    }
-}
+        projectFiles = fs.readdirSync(projectPath);
 
-if (projectFiles.indexOf(configFile) > -1) {
-    var configPath = path.join(projectPath, configFile);
-    var options = require(configPath);
-}
+        if (ignoreHivemindDir) {
+            var hivemindDirIndex = projectFiles.indexOf(hivemindDir);
+            if (hivemindDirIndex > -1) {
+                projectFiles.splice(hivemindDirIndex, 1);
+            }
+        }
 
-var config = extend(defaults, options);
+        if (projectFiles.indexOf(configFile) > -1) {
+            var configPath = path.join(projectPath, configFile);
+            var options = require(configPath);
+        }
 
-console.log(projectFiles);
-console.log(config);
+        config = extend(defaults, options);
+    };
 
-// Load main
+    self.generate = function() {
+        app = require(path.join(projectPath, config.mainFile));
 
-var source = "";
+        console.log(app);
 
-var app = require(path.join(projectPath, config.mainFile));
+        app.main();
+    };
 
-console.log(app);
+    self.buildSource = function() {
+        var s = "";
 
-app.main();
+        return s;
+    };
 
-// Write the final output file
-fs.writeFile(path.join(projectPath, config.outputFile), source, 'utf-8');
+    self.writeOutput = function(source) {
+        // Write the final output file
+        fs.writeFile(path.join(projectPath, config.outputFile), source, 'utf-8');
 
-console.log(config.outputFile + " written");
+        console.log(config.outputFile + " written");
+    };
+
+    self.run = function() {
+        self.init();
+        self.generate();
+        var sourceString = self.buildSource();
+        self.writeOutput(sourceString);
+    };
+
+    return self;
+})();
+
+compiler.run();
