@@ -83,12 +83,17 @@ var compiler = (function() {
 
         }
 
+        addKeyBind("a", function() {
+            console.log("A pressed");
+        }, "keydown");
+
         var keydown = "", keyup = "";
 
         keyBinds.forEach(function(element) {
-            var str = "";
-                str += "if (event.keyCode === " + element.key.charCodeAt(0) + ") {";
-                str += element.fn.toString() + "}";
+            var str = template("keybinds.key.js", {
+                key: element.key.charCodeAt(0),
+                fn:  element.fn.toString().match(/function[^{]+\{([\s\S]*)\}$/)[1]
+            });
             if (element.type === "keydown") {
                 keydown += str;
             } else if (element.type === "keyup") {
