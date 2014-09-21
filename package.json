@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "A Javascript to Javascript game and networking compiler.",
   "dependencies": {
+      "uglify-js": ">=2.4.15"
   },
   "repository": {
     "type": "git",

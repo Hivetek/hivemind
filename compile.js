@@ -4,6 +4,8 @@ var path = require('path'),
 var extend = require('util')._extend;
 var templateEngine = require('./template');
 
+var UglifyJS = require("uglify-js");
+
 /**
  * Main compiler
  */
@@ -120,18 +122,36 @@ var compiler = (function() {
         });
 
         var output = template("main.js", {
-            source: s,
-            projectname: config.projectName
+            source: s
         });
 
         return output;
     };
 
     /**
+     * Use UglifyJS to minify source code
+     */
+    self.minify = function(source) {
+        var minified = UglifyJS.minify(source, {fromString: true});
+        return minified.code;
+    };
+
+    /**
+     * Add comment header
+     */
+    self.addHeader = function(source) {
+        var header = template("main.header.js", {
+            projectname: config.projectName
+        });
+        return header + source;
+    }
+
+    /**
      * Write the final output file
      */
     self.writeOutput = function(sourceString) {
-        fs.writeFile(path.join(projectPath, config.outputFile), sourceString, 'utf-8');
+        var finalSourceString = self.addHeader(sourceString);
+        fs.writeFile(path.join(projectPath, config.outputFile), finalSourceString, 'utf-8');
 
         console.log(config.outputFile + " written");
     };
@@ -143,6 +163,8 @@ var compiler = (function() {
         self.init(process.argv);
         var source = self.generateCode();
         var sourceString = self.buildSource(source);
+        //var minified = self.minify(sourceString);
+        //self.writeOutput(minified);
         self.writeOutput(sourceString);
     };
 
