@@ -4,7 +4,7 @@ var path = require('path'),
 var extend = require('util')._extend;
 var templateEngine = require('./template');
 
-var library = require('./library.js');
+var library = require('./library');
 
 var UglifyJS = require("uglify-js");
 
@@ -75,7 +75,7 @@ var compiler = (function() {
 
         var keydown = "", keyup = "";
 
-        library.keyBinds.forEach(function(element) {
+        library.data.keyBinds.forEach(function(element) {
             var str = template("keybinds.key.js", {
                 key: element.key.charCodeAt(0),
                 fn:  element.fn.toString().match(/function[^{]+\{([\s\S]*)\}$/)[1]

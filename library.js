@@ -1,10 +1,16 @@
 var library = (function() {
-    var keyBinds = [];
+    /**
+     * Data
+     * The object containing the necessary data to compile
+     */
+    var data = {
+        keyBinds: []
+    };
 
     var register = (function() {
 
         function addKeyBind(key, fn, type) {
-            keyBinds.push({key: key, fn: fn, type: type});
+            data.keyBinds.push({key: key, fn: fn, type: type});
         }
 
         function keyDown(key, fn) {
@@ -16,7 +22,6 @@ var library = (function() {
         }
 
         return {
-            keyBinds: keyBinds,
             addKeyBind: addKeyBind,
             keyDown: keyDown,
             keyUp: keyUp
@@ -24,8 +29,8 @@ var library = (function() {
     })();
 
     return {
+        data: data,
         register: register,
-        keyBinds: keyBinds
     };
 })();
 
