@@ -4,6 +4,8 @@ var path = require('path'),
 var extend = require('util')._extend;
 var templateEngine = require('./template');
 
+var library = require('./library.js');
+
 var UglifyJS = require("uglify-js");
 
 /**
@@ -67,31 +69,13 @@ var compiler = (function() {
     self.generateCode = function() {
         var source = {};
 
-        app = require(path.join(projectPath, config.mainFile));
-
-        console.log(app);
-
-        app.main();
+        app = require(path.join(projectPath, config.mainFile))(library);
 
         source.startVars = template("startvars.js", {}); 
 
-        var keyBinds = [];
-
-        function addKeyBind(key, fn, type) {
-            keyBinds.push({key: key, fn: fn, type: type});
-        }
-
-        function addVariables(str){
-
-        }
-
-        addKeyBind("a", function() {
-            console.log("A pressed");
-        }, "keydown");
-
         var keydown = "", keyup = "";
 
-        keyBinds.forEach(function(element) {
+        library.keyBinds.forEach(function(element) {
             var str = template("keybinds.key.js", {
                 key: element.key.charCodeAt(0),
                 fn:  element.fn.toString().match(/function[^{]+\{([\s\S]*)\}$/)[1]
