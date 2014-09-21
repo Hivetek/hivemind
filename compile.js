@@ -118,19 +118,20 @@ var compiler = (function() {
         keys.forEach(function(element) {
             s += source[element];
         });
-        return s;
+
+        var output = template("main.js", {
+            source: s,
+            projectname: config.projectName
+        });
+
+        return output;
     };
 
     /**
      * Write the final output file
      */
     self.writeOutput = function(sourceString) {
-        var output = template("main.js", {
-            source: sourceString,
-            projectname: config.projectName
-        });
-
-        fs.writeFile(path.join(projectPath, config.outputFile), output, 'utf-8');
+        fs.writeFile(path.join(projectPath, config.outputFile), sourceString, 'utf-8');
 
         console.log(config.outputFile + " written");
     };
