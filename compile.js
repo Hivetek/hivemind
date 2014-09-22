@@ -69,7 +69,8 @@ var compiler = (function() {
     self.generateCode = function() {
         var source = {};
 
-        app = require(path.join(projectPath, config.mainFile))(library);
+        app = require(path.join(projectPath, config.mainFile));
+        app.apply({}, [library, config]);
 
         source.startVars = template("startvars.js", {}); 
 

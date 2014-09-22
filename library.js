@@ -6,7 +6,8 @@ var library = (function() {
      * The object containing the necessary data to compile
      */
     self.data = {
-        keyBinds: []
+        keyBinds: [],
+        entities: []
     };
 
     self.helper = (function() {
