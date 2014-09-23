@@ -115,9 +115,15 @@ var compiler = (function() {
      */
     self.buildSource = function(source) {
         var s = "";
+        var order = [
+            "startVars", "init", "loop", "update", "draw",
+            "keyBinds", "start", "requestAnimFrame", "misc"
+        ];
         var keys = Object.keys(source);
-        keys.forEach(function(element) {
-            s += source[element];
+        var others = keys.filter(function(i) {return !(order.indexOf(i) > -1);});
+        var list = order.concat(others);
+        list.forEach(function(key) {
+            s += source[key] || "";
         });
 
         var output = template("main.js", {
