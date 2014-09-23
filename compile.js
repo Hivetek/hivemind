@@ -96,9 +96,13 @@ var compiler = (function() {
             }
         });
 
-        source.keyBinds = template("keybinds.js", {
+        var keyBinds = template("keybinds.js", {
             keydown: keydown,
             keyup:   keyup
+        });
+
+        source.events = template("game.events.js", {
+            keyBinds: keyBinds
         });
 
         source.start = template("game.start.js", {});
@@ -117,7 +121,7 @@ var compiler = (function() {
         var s = "";
         var order = [
             "startVars", "init", "loop", "update", "draw",
-            "keyBinds", "start", "requestAnimFrame", "misc"
+            "events", "start", "requestAnimFrame", "misc"
         ];
         var keys = Object.keys(source);
         var others = keys.filter(function(i) {return !(order.indexOf(i) > -1);});

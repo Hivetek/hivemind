@@ -1,0 +1,3 @@
+function registerEvents() {
+    {{keyBinds}}
+}

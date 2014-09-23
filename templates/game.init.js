@@ -4,4 +4,6 @@ function init() {
 
     canvas.height = 500;
     canvas.width = 500;
-};
+
+    registerEvents();
+}
