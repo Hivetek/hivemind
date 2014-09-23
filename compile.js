@@ -74,6 +74,14 @@ var compiler = (function() {
 
         source.startVars = template("startvars.js", {}); 
 
+
+        source.init = template("game.init.js", {
+            canvasid: config.canvasId
+        });
+        source.loop = template("game.loop.js", {});
+        source.update = template("game.update.js", {});
+        source.draw = template("game.draw.js", {});
+
         var keydown = "", keyup = "";
 
         library.data.keyBinds.forEach(function(element) {
@@ -92,6 +100,12 @@ var compiler = (function() {
             keydown: keydown,
             keyup:   keyup
         });
+
+        source.start = template("game.start.js", {});
+
+        source.misc = template("game.misc.js", {});
+
+        source.requestAnimFrame = template("game.requestanimframe.js", {});
         
         return source;
     };
